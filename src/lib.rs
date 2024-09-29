@@ -118,18 +118,9 @@ pub fn pn(expression: &str) -> Result<f64, PolishError> {
     let split_expression = expression.split_whitespace();
     let mut operands: Vec<f64> = vec![];
 
-    if cfg!(debug_assertions) {
-        println!("input: {:?}", expression);
-        println!(
-            "split input: {:?}",
-            split_expression.clone().collect::<String>()
-        );
-        println!("operands: {:?}", operands);
-    }
-
     for token in split_expression.rev() {
         if cfg!(debug_assertions) {
-            println!("token: {:?}", token);
+            println!("token(Only displayed when debug): {:?}", token);
         }
         match parse_token(token) {
             Ok(kind) => {
@@ -139,9 +130,6 @@ pub fn pn(expression: &str) -> Result<f64, PolishError> {
                     // 演算子の場合
                     TokenKind::Operator(ops) => {
                         if operands.len() < 2 {
-                            if cfg!(debug_assertions) {
-                                println!("{:?}", operands);
-                            }
                             return Err(PolishError::NotEnoughOperands);
                         }
                         match calculate(
@@ -158,9 +146,6 @@ pub fn pn(expression: &str) -> Result<f64, PolishError> {
                     }
                 };
                 operands.push(result);
-                if cfg!(debug_assertions) {
-                    println!("{:?}", operands);
-                }
             }
             Err(e) => return Err(e),
         };
@@ -196,5 +181,13 @@ mod tests {
             println!("{:?}", exoression);
             assert_eq!(pn(exoression.0), exoression.1);
         }
+    }
+
+    #[test]
+    fn use_test() {
+        match pn("+ 5 1") {
+            Ok(result) => println!("{}", result),
+            Err(e) => eprintln!("{}", e),
+        };
     }
 }
